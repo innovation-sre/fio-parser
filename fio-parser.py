@@ -32,9 +32,9 @@ Change it for whatever you want to see.
 def parse(jobs):
 
 	# print the layout
-	print "iodepth\t%s\t%s\t%s" % (
+	print("iodepth\t%s\t%s\t%s" % (
 			"read","write", "cpu_user"
-		)
+		))
 	
 	for job_name in jobs:
 		job = jobs[job_name]
@@ -43,12 +43,12 @@ def parse(jobs):
 		name_split = re.split("-", job.name)
 		# and print just jobs that starts with "multi-" prefix
 		if (name_split[1] == "multi"):
-			print "%s\t%d\t%d\t%s" % (
+			print("%s\t%d\t%d\t%s" % (
 					name_split[4],
 					int(job.read_status.bandwidth.med()),
 					int(job.write_status.bandwidth.med()),
 					job.cpu_usage.user[0]
-				)
+				))
 
 #
 #------------- End of the parse() function ---------------
@@ -58,7 +58,7 @@ def parse(jobs):
 
 
 def print_help():
-	print "%s [-h] [-i|--input FILENAME]" % (sys.argv[0])
+	print("%s [-h] [-i|--input FILENAME]" % (sys.argv[0]))
 
 
 def main(argv):
