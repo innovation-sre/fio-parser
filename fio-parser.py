@@ -18,7 +18,7 @@
 # fio-parser
 #
 # run fio with --minimal 
-
+from __future__ import print_function
 import sys
 import getopt
 import fileinput
