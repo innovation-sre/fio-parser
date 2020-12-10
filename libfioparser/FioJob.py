@@ -20,90 +20,89 @@ from libfioparser.ValuesList import ValuesList
 from libfioparser.Iter import Iter
 from collections import namedtuple
 
-
 """ Represents a single fio job (identified by its name - it could run 
 	multiple times)
 """
+
+
 class FioJob(object):
-	def __init__(self, name):
-		self.name = name
-		self.read_status = RWStatus()
-		self.write_status = RWStatus()
-		
-		CpuUsage = namedtuple("CpuUsage", "user system context_switches major_faults minor_faults")
-		self.cpu_usage = CpuUsage(
-				ValuesList(unit="%"),
-				ValuesList(unit="%"),
-				ValuesList(),
-				ValuesList(),
-				ValuesList(),
-			)
+    def __init__(self, name):
+        self.name = name
+        self.read_status = RWStatus()
+        self.write_status = RWStatus()
 
-		self.io_depths=ValuesList()
-		self.io_lat_us=ValuesList()
-		self.io_lat_ms=ValuesList()
-		self.disk_utilization = DiskUtilization()
+        CpuUsage = namedtuple("CpuUsage", "user system context_switches major_faults minor_faults")
+        self.cpu_usage = CpuUsage(
+            ValuesList(unit="%"),
+            ValuesList(unit="%"),
+            ValuesList(),
+            ValuesList(),
+            ValuesList(),
+        )
 
-	""" Accept list of strings, each string represents one field from fio.
-	"""
-	def add(self, fields):
-		i = Iter(2)
-		i.set(5)
-		self.read_status.add(fields[int(i):int(i+41)])
-		self.write_status.add(fields[int(i):int(i+41)])
+        self.io_depths = ValuesList()
+        self.io_lat_us = ValuesList()
+        self.io_lat_ms = ValuesList()
+        self.disk_utilization = DiskUtilization()
 
-		self.cpu_usage.user.add(fields[int(i.inc())][:-1])
-		self.cpu_usage.system.add( fields[int(i.inc())][:-1])
-		self.cpu_usage.context_switches.add(fields[int(i.inc())])
-		self.cpu_usage.major_faults.add(fields[int(i.inc())])
-		self.cpu_usage.minor_faults.add(fields[int(i.inc())])
+    """ Accept list of strings, each string represents one field from fio.
+    """
 
-		self.io_depths.add({
-				'1':fields[int(i.inc())],
-				'2':fields[int(i.inc())],
-				'4':fields[int(i.inc())],
-				'8':fields[int(i.inc())],
-				'16':fields[int(i.inc())],
-				'32':fields[int(i.inc())],
-				'64+':fields[int(i.inc())],
-			}, False)
-		self.io_lat_us.add({
-				'2':fields[int(i.inc())],
-				'4':fields[int(i.inc())],
-				'10':fields[int(i.inc())],
-				'20':fields[int(i.inc())],
-				'50':fields[int(i.inc())],
-				'100':fields[int(i.inc())],
-				'250':fields[int(i.inc())],
-				'500':fields[int(i.inc())],
-				'750':fields[int(i.inc())],
-				'1000':fields[int(i.inc())],
-			}, False)
-		self.io_lat_ms.add({
-				'2':fields[int(i.inc())],
-				'4':fields[int(i.inc())],
-				'10':fields[int(i.inc())],
-				'20':fields[int(i.inc())],
-				'50':fields[int(i.inc())],
-				'100':fields[int(i.inc())],
-				'250':fields[int(i.inc())],
-				'500':fields[int(i.inc())],
-				'750':fields[int(i.inc())],
-				'1000':fields[int(i.inc())],
-				'2000':fields[int(i.inc())],
-				'2000+':fields[int(i.inc())],
-			},False)
-		self.disk_utilization.add(fields[int(i):int(i+9)])
+    def add(self, fields):
+        i = Iter(2)
+        i.set(5)
+        self.read_status.add(fields[int(i):int(i + 41)])
+        self.write_status.add(fields[int(i):int(i + 41)])
 
+        self.cpu_usage.user.add(fields[int(i.inc())][:-1])
+        self.cpu_usage.system.add(fields[int(i.inc())][:-1])
+        self.cpu_usage.context_switches.add(fields[int(i.inc())])
+        self.cpu_usage.major_faults.add(fields[int(i.inc())])
+        self.cpu_usage.minor_faults.add(fields[int(i.inc())])
 
-	def __str__(self):
-		return  "%s\n"%(self.name)+\
-				"READ status:\n"+\
-				str(self.read_status)+\
-				"\nWRITE status:\n"+\
-				str(self.write_status)+\
-				"\n"+\
-				str(self.cpu_usage)+\
-				""
+        self.io_depths.add({
+            '1': fields[int(i.inc())],
+            '2': fields[int(i.inc())],
+            '4': fields[int(i.inc())],
+            '8': fields[int(i.inc())],
+            '16': fields[int(i.inc())],
+            '32': fields[int(i.inc())],
+            '64+': fields[int(i.inc())],
+        }, False)
+        self.io_lat_us.add({
+            '2': fields[int(i.inc())],
+            '4': fields[int(i.inc())],
+            '10': fields[int(i.inc())],
+            '20': fields[int(i.inc())],
+            '50': fields[int(i.inc())],
+            '100': fields[int(i.inc())],
+            '250': fields[int(i.inc())],
+            '500': fields[int(i.inc())],
+            '750': fields[int(i.inc())],
+            '1000': fields[int(i.inc())],
+        }, False)
+        self.io_lat_ms.add({
+            '2': fields[int(i.inc())],
+            '4': fields[int(i.inc())],
+            '10': fields[int(i.inc())],
+            '20': fields[int(i.inc())],
+            '50': fields[int(i.inc())],
+            '100': fields[int(i.inc())],
+            '250': fields[int(i.inc())],
+            '500': fields[int(i.inc())],
+            '750': fields[int(i.inc())],
+            '1000': fields[int(i.inc())],
+            '2000': fields[int(i.inc())],
+            '2000+': fields[int(i.inc())],
+        }, False)
+        self.disk_utilization.add(fields[int(i):int(i + 9)])
 
-
+    def __str__(self):
+        return "%s\n" % (self.name) + \
+               "READ status:\n" + \
+               str(self.read_status) + \
+               "\nWRITE status:\n" + \
+               str(self.write_status) + \
+               "\n" + \
+               str(self.cpu_usage) + \
+               ""
