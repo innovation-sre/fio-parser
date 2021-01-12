@@ -44,6 +44,7 @@ def parse(jobs):
     job_id = os.environ.get('FIOTEST_JOB_ID', 'default-job')
     node = os.environ.get('FIOTEST_NODE', 'default-node')
     push_gw_namespace = os.environ.get('PUSH_GW_NAMESPACE', 'scale-ci-tooling')
+    push_gw_endpoint = f'galeo-prometheus-pushgateway.{push_gw_namespace}.svc.cluster.local:9091'
     # with open('/metrics', 'w') as f:
     for job_name in jobs:
         job = jobs[job_name]
@@ -53,6 +54,8 @@ def parse(jobs):
         # Write Prometheus Metrics
         metrics = []
         registry = CollectorRegistry()
+        posting_error = False
+        posting_error_str = ""
         if name_split[1] == "multi":
             io_depth = name_split[4]
             read_bandwidth = int(job.read_status.bandwidth.med())
@@ -163,23 +166,21 @@ def parse(jobs):
 
             metrics_lines = '\n'.join(metrics)
             try:
-                print('Posting the data to pushgateway - ', node, job_name)
-                #                 res = requests.post(url=f'http://galeo-prometheus-pushgateway.{push_gw_namespace}.svc.cluster.local:9091'
-                #                                         f'/metrics/job/fiotest/instance/{build_no}',
-                #                                     data=metrics_lines.encode('utf8'))
+                print('Posting the data to pushgateway (%s) - Node: %s | Job Name: %s | ' % (
+                                                    push_gw_endpoint, node, job_name))
                 gid = {}
                 gid['instance'] = node
                 gid['io_depth'] = io_depth
-                push_to_gateway(f'galeo-prometheus-pushgateway.{push_gw_namespace}.svc.cluster.local:9091', job=job_id,
+                push_to_gateway(push_gw_endpoint, job=job_id,
                                 grouping_key=gid,
                                 registry=registry)
-                print('Posted the data to pushgateway.')
-            #                 if res.status_code == 200:
-            #                     print('Successful')
-            #                 print('Metrics Data Posted: ')
-            #                 print(data)
+                print('Posted successfully to pushgateway - ', push_gw_endpoint)
             except Exception as e:
-                print('Exception was raised. Error: %s' % e)
+                posting_error_str = e
+                posting_error = True
+
+        if posting_error:
+            print('Exception was raised. Error: %s' % posting_error_str)
 
 
 def print_help():
