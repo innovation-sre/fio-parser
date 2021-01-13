@@ -43,6 +43,7 @@ def parse(jobs):
     block_size = os.environ.get('FIOTEST_BS', '4k')
     job_id = os.environ.get('FIOTEST_JOB_ID', 'default-job')
     node = os.environ.get('FIOTEST_NODE', 'default-node')
+    io_depth = os.environ.get('FIOTEST_IO_DEPTH', 128)
     push_gw_namespace = os.environ.get('PUSH_GW_NAMESPACE', 'scale-ci-tooling')
     push_gw_endpoint = f'galeo-prometheus-pushgateway.{push_gw_namespace}.svc.cluster.local:9091'
     # with open('/metrics', 'w') as f:
@@ -59,23 +60,22 @@ def parse(jobs):
         posting_error_str = ""
         if name_split[1] == "multi":
             block_size = name_split[4]
-            print("IO Depth: ", job.io_depths)
-            print("Blocksize: ", block_size)
-            io_depth = job.io_depths.s(0)  # 0th index
-            read_bandwidth = int(job.read_status.bandwidth.med())
+            print("IO Depth (%s): %s" % (name_split,job.io_depths))
+            print("Blocksize:", block_size)
+            read_bandwidth = int(job.read_status.bandwidth.avg())
             read_bandwidth_min = int(job.read_status.bandwidth.min())
             read_bandwidth_max = int(job.read_status.bandwidth.max())
-            write_bandwidth = int(job.write_status.bandwidth.med())
+            write_bandwidth = int(job.write_status.bandwidth.avg())
             write_bandwidth_min = int(job.write_status.bandwidth.min())
             write_bandwidth_max = int(job.write_status.bandwidth.max())
             user_cpu = job.cpu_usage.user[0]
-            iops = int(job.write_status.iops.med())
+            iops = int(job.write_status.iops.avg())
             iops_min = int(job.write_status.iops.min())
             iops_max = int(job.write_status.iops.max())
-            total_io = int(job.write_status.total_io.med())
+            total_io = int(job.write_status.total_io.avg())
             total_io_min = int(job.write_status.total_io.min())
             total_io_max = int(job.write_status.total_io.max())
-            total_runtime = int(job.write_status.runtime.med())
+            total_runtime = int(job.write_status.runtime.avg())
             total_runtime_min = int(job.write_status.runtime.min())
             total_runtime_max = int(job.write_status.runtime.max())
             print("%s\t%dB/s\t%dB/s\t%s\t%d\t%dKB\t%dms" % (
@@ -89,7 +89,7 @@ def parse(jobs):
             ))
             bw_gauge = Gauge('scaleci_fiotest_bandwidth', 'Bandwidth Result of an FIO Test',
                              ["build_no", "block_size", "type", "agg"], registry=registry)
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="read", agg="median").set(
+            bw_gauge.labels(build_no=build_no, block_size=block_size, type="read", agg="avg").set(
                 read_bandwidth)
 
             bw_gauge.labels(build_no=build_no, block_size=block_size, type="read", agg="min").set(
@@ -101,7 +101,7 @@ def parse(jobs):
             # write_bw_gauge = Gauge('scaleci_fiotest_bandwidth_write', 'Bandwidth Result of an FIO Test',
             #                        ["build_no", "block_size", "io_depth"], registry=registry)
             # write_bw_gauge.set_to_current_time()
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="write", agg="median").set(
+            bw_gauge.labels(build_no=build_no, block_size=block_size, type="write", agg="avg").set(
                 write_bandwidth)
 
             bw_gauge.labels(build_no=build_no, block_size=block_size, type="write", agg="min").set(
@@ -116,19 +116,19 @@ def parse(jobs):
 
             iops_gauge = Gauge('scaleci_fiotest_iops', 'IO Operations /sec for the FIO Test',
                                ["build_no", "block_size", "agg"], registry=registry)
-            iops_gauge.labels(build_no=build_no, block_size=block_size, agg="median").set(iops)
+            iops_gauge.labels(build_no=build_no, block_size=block_size, agg="avg").set(iops)
             iops_gauge.labels(build_no=build_no, block_size=block_size, agg="min").set(iops_min)
             iops_gauge.labels(build_no=build_no, block_size=block_size, agg="max").set(iops_max)
 
             total_io_gauge = Gauge('scaleci_fiotest_total_io', 'Total IO count for the FIO Test',
                                    ["build_no", "block_size", "agg"], registry=registry)
-            total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="median").set(total_io)
+            total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="avg").set(total_io)
             total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="min").set(total_io_min)
             total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="max").set(total_io_max)
 
             total_runtime_gauge = Gauge('scaleci_fiotest_runtime', 'Total runtime for the FIO Test',
                                         ["build_no", "block_size", "agg"], registry=registry)
-            total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="median").set(total_runtime)
+            total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="avg").set(total_runtime)
             total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="min").set(total_runtime_min)
             total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="max").set(total_runtime_max)
 
