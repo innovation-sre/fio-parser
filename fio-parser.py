@@ -46,6 +46,7 @@ def parse(jobs):
     push_gw_namespace = os.environ.get('PUSH_GW_NAMESPACE', 'scale-ci-tooling')
     push_gw_endpoint = f'galeo-prometheus-pushgateway.{push_gw_namespace}.svc.cluster.local:9091'
     # with open('/metrics', 'w') as f:
+    print('Jobs Count: ', len(jobs))
     for job_name in jobs:
         job = jobs[job_name]
         # parse the name of the job
@@ -57,7 +58,8 @@ def parse(jobs):
         posting_error = False
         posting_error_str = ""
         if name_split[1] == "multi":
-            io_depth = name_split[4]
+            print("IO Depth Values: ", job.io_depths)
+            io_depth = job.io_depths.max()
             read_bandwidth = int(job.read_status.bandwidth.med())
             read_bandwidth_min = int(job.read_status.bandwidth.min())
             read_bandwidth_max = int(job.read_status.bandwidth.max())
