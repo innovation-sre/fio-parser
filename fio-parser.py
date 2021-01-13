@@ -61,7 +61,7 @@ def parse(jobs):
             block_size = name_split[4]
             print("IO Depth: ", job.io_depths)
             print("Blocksize: ", block_size)
-            io_depth = job.io_depths.max()
+            io_depth = job.io_depths.s(0)  # 0th index
             read_bandwidth = int(job.read_status.bandwidth.med())
             read_bandwidth_min = int(job.read_status.bandwidth.min())
             read_bandwidth_max = int(job.read_status.bandwidth.max())
