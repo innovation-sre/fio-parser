@@ -58,7 +58,9 @@ def parse(jobs):
         posting_error = False
         posting_error_str = ""
         if name_split[1] == "multi":
-            print("IO Depth Values: ", job.io_depths)
+            block_size = name_split[4]
+            print("IO Depth: ", job.io_depths)
+            print("Blocksize: ", block_size)
             io_depth = job.io_depths.max()
             read_bandwidth = int(job.read_status.bandwidth.med())
             read_bandwidth_min = int(job.read_status.bandwidth.min())
