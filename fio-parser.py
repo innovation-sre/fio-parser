@@ -88,93 +88,53 @@ def parse(jobs):
                 total_runtime
             ))
             bw_gauge = Gauge('scaleci_fiotest_bandwidth', 'Bandwidth Result of an FIO Test',
-                             ["build_no", "block_size", "type", "agg"], registry=registry)
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="read", agg="avg").set(
+                             ["build_no", "io_depth", "type", "agg"], registry=registry)
+            bw_gauge.labels(build_no=build_no, io_depth=io_depth, type="read", agg="avg").set(
                 read_bandwidth)
 
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="read", agg="min").set(
+            bw_gauge.labels(build_no=build_no, io_depth=io_depth, type="read", agg="min").set(
                 read_bandwidth_min)
 
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="read", agg="max").set(
+            bw_gauge.labels(build_no=build_no, io_depth=io_depth, type="read", agg="max").set(
                 read_bandwidth_max)
 
-            # write_bw_gauge = Gauge('scaleci_fiotest_bandwidth_write', 'Bandwidth Result of an FIO Test',
-            #                        ["build_no", "block_size", "io_depth"], registry=registry)
-            # write_bw_gauge.set_to_current_time()
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="write", agg="avg").set(
+            bw_gauge.labels(build_no=build_no, io_depth=io_depth, type="write", agg="avg").set(
                 write_bandwidth)
 
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="write", agg="min").set(
+            bw_gauge.labels(build_no=build_no, io_depth=io_depth, type="write", agg="min").set(
                 write_bandwidth_min)
 
-            bw_gauge.labels(build_no=build_no, block_size=block_size, type="write", agg="max").set(
+            bw_gauge.labels(build_no=build_no, io_depth=io_depth, type="write", agg="max").set(
                 write_bandwidth_max)
 
             cpu_gauge = Gauge('scaleci_fiotest_cpu', 'CPU Utilization for the FIO Test',
-                              ["build_no", "block_size"], registry=registry)
-            cpu_gauge.labels(build_no=build_no, block_size=block_size).set(user_cpu)
+                              ["build_no", "io_depth"], registry=registry)
+            cpu_gauge.labels(build_no=build_no, io_depth=io_depth).set(user_cpu)
 
             iops_gauge = Gauge('scaleci_fiotest_iops', 'IO Operations /sec for the FIO Test',
-                               ["build_no", "block_size", "agg"], registry=registry)
-            iops_gauge.labels(build_no=build_no, block_size=block_size, agg="avg").set(iops)
-            iops_gauge.labels(build_no=build_no, block_size=block_size, agg="min").set(iops_min)
-            iops_gauge.labels(build_no=build_no, block_size=block_size, agg="max").set(iops_max)
+                               ["build_no", "io_depth", "agg"], registry=registry)
+            iops_gauge.labels(build_no=build_no, io_depth=io_depth, agg="avg").set(iops)
+            iops_gauge.labels(build_no=build_no, io_depth=io_depth, agg="min").set(iops_min)
+            iops_gauge.labels(build_no=build_no, io_depth=io_depth, agg="max").set(iops_max)
 
             total_io_gauge = Gauge('scaleci_fiotest_total_io', 'Total IO count for the FIO Test',
-                                   ["build_no", "block_size", "agg"], registry=registry)
-            total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="avg").set(total_io)
-            total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="min").set(total_io_min)
-            total_io_gauge.labels(build_no=build_no, block_size=block_size, agg="max").set(total_io_max)
+                                   ["build_no", "io_depth", "agg"], registry=registry)
+            total_io_gauge.labels(build_no=build_no, io_depth=io_depth, agg="avg").set(total_io)
+            total_io_gauge.labels(build_no=build_no, io_depth=io_depth, agg="min").set(total_io_min)
+            total_io_gauge.labels(build_no=build_no, io_depth=io_depth, agg="max").set(total_io_max)
 
             total_runtime_gauge = Gauge('scaleci_fiotest_runtime', 'Total runtime for the FIO Test',
-                                        ["build_no", "block_size", "agg"], registry=registry)
-            total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="avg").set(total_runtime)
-            total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="min").set(total_runtime_min)
-            total_runtime_gauge.labels(build_no=build_no, block_size=block_size, agg="max").set(total_runtime_max)
+                                        ["build_no", "io_depth", "agg"], registry=registry)
+            total_runtime_gauge.labels(build_no=build_no, io_depth=io_depth, agg="avg").set(total_runtime)
+            total_runtime_gauge.labels(build_no=build_no, io_depth=io_depth, agg="min").set(total_runtime_min)
+            total_runtime_gauge.labels(build_no=build_no, io_depth=io_depth, agg="max").set(total_runtime_max)
 
-            #             metrics.append('scaleci_fiotest_bandwidth{build_no="%d",type="read",'
-            #                     'block_size="%s",io_depth="%s"} %d' % (build_no, block_size, iodepth, read_bandwidth))
-            #             metrics.append('scaleci_fiotest_bandwidth{build_no="%d",type="write",'
-            #                     'block_size="%s",io_depth="%s"} %d' % (build_no, block_size, iodepth, write_bandwidth))
-            # registry.register(cpu_gauge)
-            # registry.register(read_bw_gauge)
-            # registry.register(write_bw_gauge)
-
-            #
-            #             metrics.append('# HELP scaleci_fiotest_cpu CPU Utilization for the FIO Test')
-            #             metrics.append('# TYPE scaleci_fiotest_cpu gauge')
-            #             metrics.append('scaleci_fiotest_cpu{build_no="%d",block_size="%s",'
-            #                     'io_depth="%s"} %d' % (build_no, block_size, iodepth, user_cpu))
-            # registry.register(iops_gauge)
-
-            #
-            #             metrics.append('# HELP scaleci_fiotest_iops IO Operations /sec for the FIO Test')
-            #             metrics.append('# TYPE scaleci_fiotest_iops gauge')
-            #             metrics.append('scaleci_fiotest_iops{build_no="%d",block_size="%s",'
-            #                     'io_depth="%s"} %d' % (build_no, block_size, iodepth, iops))
-            # registry.register(total_io_gauge)
-
-            #             metrics.append('# HELP scaleci_fiotest_total_io Total IO count for the FIO Test')
-            #             metrics.append('# TYPE scaleci_fiotest_total_io gauge')
-            #             metrics.append('scaleci_fiotest_total_io{build_no="%d",block_size="%s",'
-            #                     'io_depth="%s"} %d' % (build_no, block_size, iodepth, total_io))
-            # registry.register(total_io_gauge)
-
-            #
-            #             metrics.append('# HELP scaleci_fiotest_runtime Total runtime for the FIO Test')
-            #             metrics.append('# TYPE scaleci_fiotest_runtime gauge')
-            #             metrics.append('scaleci_fiotest_runtime{build_no="%d",block_size="%s",'
-            #                     'io_depth="%s"} %d' % (build_no, block_size, iodepth, total_runtime))
-
-            # f.writelines([s + '\n' for s in metrics])
-
-            metrics_lines = '\n'.join(metrics)
             try:
-                print('Posting the data to pushgateway (%s) - Node: %s | Job Name: %s | ' % (
-                                                    push_gw_endpoint, node, job_name))
                 gid = {}
                 gid['instance'] = node
-                gid['io_depth'] = io_depth
+                gid['block_size'] = "%sk" % block_size
+                print('Posting the data to pushgateway (%s) - Node: %s | Job Name: %s | Group Key: %s' % (
+                                                    push_gw_endpoint, node, job_name, gid))
                 push_to_gateway(push_gw_endpoint, job=job_id,
                                 grouping_key=gid,
                                 registry=registry)
